@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>OpenLayers Basic Example</title>
+
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script>
+      function init() {
+        map = new OpenLayers.Map("mapdiv");
+        var mapnik = new OpenLayers.Layer.OSM();
+        map.addLayer(mapnik);
+			
+         // allow testing of specific renderers via "?renderer=Canvas", etc
+         var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
+         renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
+
+         /*
+          * Layer style
+          */
+         // we want opaque external graphics and non-opaque internal graphics
+         var layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+         layer_style.fillOpacity = 0.2;
+         layer_style.graphicOpacity = 1;
+
+         /*
+          * Blue style
+          */
+         var style_blue = OpenLayers.Util.extend({}, layer_style);
+         style_blue.strokeColor = "blue";
+         style_blue.fillColor = "blue";
+         //style_blue.graphicName = "star";
+         style_blue.pointRadius = 5;
+         style_blue.strokeWidth = 3;
+         style_blue.rotation = 45;
+         style_blue.strokeLinecap = "butt";
+
+         /*
+          * Green style
+          */
+         var style_green = {
+             strokeColor: "#00FF00",
+             strokeWidth: 3,
+             strokeDashstyle: "dashdot",
+             pointRadius: 6,
+             pointerEvents: "visiblePainted",
+             title: "this is a green line"
+         };
+
+        var lonlat = new OpenLayers.LonLat(-122.680591,45.510016).transform(
+            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+            new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator
+          );
+			 var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", {
+                style: layer_style,
+                renderers: renderer
+            });
+        var zoom = 15;
+		  var point = new OpenLayers.Geometry.Point(-122.680591,45.510016);
+		  point.transform(
+		  	   //this has to be done, not sure of the reason
+				new OpenLayers.Projection("EPSG:4326"), 
+            new OpenLayers.Projection("EPSG:900913") 
+
+		  );
+		  var pointFeature = new OpenLayers.Feature.Vector(point,null,style_green);
+		  //var pointFeature = new OpenLayers.Feature.Vector(point);
+		  pointFeature.attributes = {name : "FAB"};
+		  map.addLayer(vectorLayer);
+		  vectorLayer.addFeatures([pointFeature]);
+        map.setCenter(lonlat, zoom);
+      }
+    </script>
+
+    <style>
+    #mapdiv { width:700px; height:500px; }
+    div.olControlAttribution { bottom:3px; }
+    </style>
+
+</head>
+
+<body onload="init();">
+    <p>My HTML page with an embedded map</p>
+    <div id="mapdiv"></div>
+</body>
+</html>
