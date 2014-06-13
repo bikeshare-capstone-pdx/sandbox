@@ -22,51 +22,70 @@
          layer_style.fillOpacity = 0.2;
          layer_style.graphicOpacity = 1;
 
-         /*
-          * Blue style
-          */
-         var style_blue = OpenLayers.Util.extend({}, layer_style);
-         style_blue.strokeColor = "blue";
-         style_blue.fillColor = "blue";
-         //style_blue.graphicName = "star";
-         style_blue.pointRadius = 5;
-         style_blue.strokeWidth = 3;
-         style_blue.rotation = 45;
-         style_blue.strokeLinecap = "butt";
 
-         /*
-          * Green style
-          */
-         var style_green = {
-             strokeColor: "#00FF00",
-             strokeWidth: 3,
-             strokeDashstyle: "dashdot",
-             pointRadius: 6,
-             pointerEvents: "visiblePainted",
-             title: "this is a green line"
-         };
 
         var lonlat = new OpenLayers.LonLat(-122.680591,45.510016).transform(
             new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
             new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator
           );
-			 var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", {
-                style: layer_style,
+	var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", {
+                styleMap: new OpenLayers.StyleMap({'default':{
+                    strokeColor: "${pointColor}",
+                    strokeOpacity: 1,
+                    strokeWidth: 3,
+                    fillColor: "${pointColor}",
+                    fillOpacity: 0.8,
+                    pointRadius: 5,
+                    pointerEvents: "visiblePainted",
+                    label : "${name}",
+                    fontColor: "${favColor}",
+                    fontSize: "12px",
+                    fontFamily: "Courier New, monospace",
+                    fontWeight: "bold",
+                    labelAlign: "${align}",
+                    labelXOffset: "${xOffset}",
+                    labelYOffset: "${yOffset}"
+                }}),
                 renderers: renderer
             });
         var zoom = 15;
-		  var point = new OpenLayers.Geometry.Point(-122.680591,45.510016);
-		  point.transform(
-		  	   //this has to be done, not sure of the reason
-				new OpenLayers.Projection("EPSG:4326"), 
-            new OpenLayers.Projection("EPSG:900913") 
-
-		  );
-		  var pointFeature = new OpenLayers.Feature.Vector(point,null,style_green);
-		  //var pointFeature = new OpenLayers.Feature.Vector(point);
-		  pointFeature.attributes = {name : "FAB"};
-		  map.addLayer(vectorLayer);
-		  vectorLayer.addFeatures([pointFeature]);
+	var point = new OpenLayers.Geometry.Point(-122.680591,45.510016);
+	point.transform(
+		   //this has to be done, not sure of the reason
+	      	new OpenLayers.Projection("EPSG:4326"), 
+	      	new OpenLayers.Projection("EPSG:900913") 
+	
+	);
+	//var pointFeature = new OpenLayers.Feature.Vector(point,null,style_blue);
+	var pointFeature = new OpenLayers.Feature.Vector(point);
+	//pointFeature.attributes = {name : "FAB"};
+	pointFeature.attributes = {
+                name: "FAB",
+                favColor: 'red',
+                align: "cm",
+		xOffset: 10,
+		yOffset: 10,
+		pointColor: 'blue'
+            };
+	var pizzaPoint = new OpenLayers.Geometry.Point(-122.680637,45.511542);
+	pizzaPoint.transform(
+			new OpenLayers.Projection("EPSG:4326"), 
+	      		new OpenLayers.Projection("EPSG:900913") 
+			);
+	var pizzaPointFeature = new OpenLayers.Feature.Vector(pizzaPoint);
+	pizzaPointFeature.attributes = {
+		name : "Pizza Schmizza",
+		favColor : 'blue',
+		align : 'cm',
+		xOffset : 10,
+		yOffset : 10,
+		pointColor : 'red'
+	};
+	var line =  new OpenLayers.Layer.Vector();
+	line.addFeatures([new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString([point, pizzaPoint]))]);
+	map.addLayer(vectorLayer);
+	map.addLayer(line);
+	vectorLayer.addFeatures([pointFeature, pizzaPointFeature]);
         map.setCenter(lonlat, zoom);
       }
     </script>
@@ -79,7 +98,7 @@
 </head>
 
 <body onload="init();">
-    <p>My HTML page with an embedded map</p>
+    <p>Map of the general area around PSU</p>
     <div id="mapdiv"></div>
 </body>
 </html>
